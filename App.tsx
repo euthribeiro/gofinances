@@ -13,7 +13,6 @@ import theme from './src/global/styles/theme';
 
 import { Dashboard } from './src/screens/Dashboard';
 
-
 export default function App() {
 
   const [fontsLoaded] = useFonts({
