@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
+import uuid from 'react-native-uuid';
 import { 
   Keyboard, 
   Modal, 
   TouchableWithoutFeedback,
   Alert
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Button } from '../../components/Form/Button';
 import { CategorySelectButton } from '../../components/Form/CategorySelectButton';
 import { InputForm } from '../../components/Form/InputForm';
@@ -21,6 +24,8 @@ import {
   Fields,
   TransactionsTypes
 } from './style';
+import { Transaction } from '../Dashboard';
+
 
 interface FormData {
   name: string;
@@ -40,7 +45,9 @@ const schema = Yup.object().shape({
 
 export function Register() {
 
-  const { control, handleSubmit, formState: { errors }  } = useForm({
+  const navigation = useNavigation();
+
+  const { control, handleSubmit, formState: { errors }, reset  } = useForm({
     resolver: yupResolver(schema)
   });
   
@@ -49,7 +56,7 @@ export function Register() {
     name: 'Categoria',
   });
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [transactionType, setTransactionType] = useState('up');
+  const [transactionType, setTransactionType] = useState<'up' | 'down'>('up');
 
   function handleTransactionTypeSelect(type: 'up' | 'down') {
     setTransactionType(type);
@@ -63,18 +70,52 @@ export function Register() {
     setCategoryModalOpen(true);
   }
 
-  function handleRegister(form: FormData) {
+  async function handleRegister(form: FormData) {
     if(!transactionType) {
-      Alert.alert('Selecione o tipo da transação');
+      Alert.alert('Tipo', 'Selecione o tipo da transação');
       return;
     }
 
     if(category.key === 'category') {
-      Alert.alert('Selecione a categoria');
+      Alert.alert('Categoria', 'Selecione a categoria');
       return;
     }
 
-    console.log(form);
+    const transaction: Transaction = {
+      id: uuid.v4().toString(),
+      type: transactionType,
+      category: category.key,
+      amount: form.amount,
+      name: form.name,
+      date: new Date(),
+    };
+
+    try {
+      const dataKey = '@gofinances:transactions';
+      const data = await AsyncStorage.getItem(dataKey);
+      const transactions: Transaction[] = data ? JSON.parse(data!) : [];
+
+      const transactionsData = [
+        ...transactions,
+        transaction
+      ];
+
+      await AsyncStorage.setItem(dataKey, JSON.stringify(transactionsData));
+
+      reset();
+
+      setCategory({
+        key: 'category',
+        name: 'Categoria',
+      });
+
+      setTransactionType('up');
+
+      navigation.navigate('Listagem');
+
+    } catch(e) {
+      Alert.alert('Transação', 'Não foi possível salvar a transação');
+    }
   }
 
   return (
