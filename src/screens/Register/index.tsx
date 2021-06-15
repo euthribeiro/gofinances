@@ -87,7 +87,7 @@ export function Register() {
       category: category.key,
       amount: form.amount,
       name: form.name,
-      date: new Date(),
+      date: new Date().toString(),
     };
 
     try {

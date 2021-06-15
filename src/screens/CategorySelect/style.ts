@@ -1,7 +1,9 @@
 import { RFValue } from 'react-native-responsive-fontsize';
-import styled, { css } from 'styled-components/native';
+import { Platform, StatusBar } from 'react-native';
+import styled from 'styled-components/native';
 import { Feather } from '@expo/vector-icons';
 import { GestureHandlerRootView, RectButton } from 'react-native-gesture-handler'
+import { getStatusBarHeight } from 'react-native-iphone-x-helper';
 
 interface CategoryProps {
   isActive: boolean;
@@ -15,7 +17,7 @@ export const Container = styled(GestureHandlerRootView)`
 export const Header = styled.View`
   background-color: ${({ theme }) => theme.colors.primary};
   width: 100%;
-  height: ${RFValue(113)}px;
+  height: ${RFValue(Platform.OS === 'android' ? 113 - getStatusBarHeight() : 113)}px;
 
   align-items: center;
   justify-content: flex-end;
