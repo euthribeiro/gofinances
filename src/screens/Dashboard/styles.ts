@@ -31,6 +31,7 @@ export const UserWrapper = styled.View`
 export const UserInfo = styled.View`
   flex-direction: row;
   align-items: center;
+  flex: 1;
 `;
 
 export const Photo = styled.Image`
@@ -41,6 +42,7 @@ export const Photo = styled.Image`
 
 export const User = styled.View`
   margin-left: 17px;
+  flex: 1;
 `;
 
 export const UserGretting = styled.Text`

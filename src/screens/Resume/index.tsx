@@ -24,6 +24,7 @@ import { categories } from '../../utils/categories';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useFocusEffect } from '@react-navigation/native';
 import { useEffect } from 'react';
+import { useAuth } from '../../hooks/auth';
 
 interface TotalByCategory {
   key: string;
@@ -37,6 +38,7 @@ interface TotalByCategory {
 
 export function Resume() {
   const { colors } = useTheme();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [totalByCategories, setTotalByCategories] = useState<TotalByCategory[]>([]);
@@ -53,7 +55,7 @@ export function Resume() {
     
     setIsLoading(true);
 
-    const dataKey = '@gofinances:transactions';
+    const dataKey = `@gofinances:transactions_user:${user.id}`;
     const data = await AsyncStorage.getItem(dataKey);
     const transactions: Transaction[] = data ? JSON.parse(data!) : [];
 

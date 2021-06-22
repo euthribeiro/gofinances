@@ -23,6 +23,7 @@ import {
   LogoutButton,
   LoadContainer
 } from './styles';
+import { useAuth } from '../../hooks/auth';
 
 export interface Transaction extends TransactionCardProps {
   id: string;
@@ -45,8 +46,12 @@ export function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [highlight, setHighlight] = useState<HighlightProps>({} as HighlightProps);
+  const { logout, user } = useAuth();
+
 
   function getLastTransaction(collection: Transaction[], type: 'up' | 'down') {
+
+    if(collection.length === 0) return 0;
 
     const date = new Date(Math.max.apply(null,
       collection
@@ -59,7 +64,7 @@ export function Dashboard() {
 
   async function loadTransactions() {
     try {
-      const dataKey = '@gofinances:transactions';
+      const dataKey = `@gofinances:transactions_user:${user.id}`;
 
       const data = await AsyncStorage.getItem(dataKey);
       const transactionsData: Transaction[] = data ? JSON.parse(data!) : [];
@@ -116,6 +121,14 @@ export function Dashboard() {
 
       const total = income - outcome;
 
+      const lastTransactionIncomePhrase = lastTransactionIncome === 0 ?
+      'Não há transaçãoes' : 'Última entrada dia ' + lastTransactionIncome;
+
+      const lastTransactionOutcomePhrase = lastTransactionOutcome === 0 ?
+      'Não há transaçãoes' : 'Última entrada dia ' + lastTransactionOutcome;
+
+      const lastTransactionDatePhrase = transactionsData.length === 0 ?
+      'Não há transaçãoes' : '01 à ' + `${lastTransactionDate.getDate()} de ${lastTransactionDate.toLocaleDateString('pt-BR', { month: 'long' })}`;
 
       setHighlight({
         income: {
@@ -123,21 +136,21 @@ export function Dashboard() {
             style: 'currency',
             currency: 'BRL'
           }).format(income),
-          lastTransaction: 'Última entrada dia ' + lastTransactionIncome
+          lastTransaction: lastTransactionIncomePhrase
         },
         outcome: {
           amount: Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
           }).format(outcome),
-          lastTransaction: 'Última saída dia ' + lastTransactionOutcome
+          lastTransaction: lastTransactionOutcomePhrase
         },
         total: {
           amount: Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
           }).format(total),
-          lastTransaction: '01 à ' + `${lastTransactionDate.getDate()} de ${lastTransactionDate.toLocaleDateString('pt-BR', { month: 'long' })}`
+          lastTransaction: lastTransactionDatePhrase
         }
       })
 
@@ -164,14 +177,14 @@ export function Dashboard() {
       <Header>
         <UserWrapper>
           <UserInfo>
-            <Photo source={{uri: 'https://avatars.githubusercontent.com/u/36652917?s=400&u=162ebd4607d72e5b84b4f699d07ca3f1517ab7e2&v=4.png'}} />
+            <Photo source={{ uri: user.photo }} />
             <User>
               <UserGretting>Olá,</UserGretting>
-              <UserName>Thiago</UserName>
+              <UserName numberOfLines={1} ellipsizeMode="tail">{user.name}</UserName>
             </User>
           </UserInfo>
           <LogoutButton
-            onPress={() => {}}
+            onPress={logout}
           >
             <Icon name="power" />
           </LogoutButton>
