@@ -57,7 +57,7 @@ function AuthProvider({ children } : AuthProviderProps) {
       } else {
         Alert.alert('Autenticação falhou', 'Não foi possível obter os dados de sua conta');
       }
-    } catch(e) {
+    } catch(e: any) {
       throw new Error(e);
     }
   }
