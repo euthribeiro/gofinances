@@ -65,4 +65,17 @@ describe('Auth hook', () => {
       .not
       .toHaveProperty('id');
   });
+
+
+  it('expect a wrong when sign in with google', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+
+    
+
+    try {
+      await act(() => result.current.signInWithGoogle());
+    } catch(e) {
+      expect(result.current.user).toEqual({});
+    }
+  });
 })
